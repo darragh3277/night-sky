@@ -1,0 +1,21 @@
+body, html {
+    height: 100%;
+    margin: 0;
+}
+#root{
+    height:100%;
+}
+.flex-fill {
+    height:100%;
+    flex: 1 1 auto;
+}  
+.bg { 
+    background-image: url("./images/background.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.day-block-card{
+    height: 87px;
+    
+}
