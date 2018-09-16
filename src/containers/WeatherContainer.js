@@ -1,76 +1,25 @@
 import React from 'react';
-import LocationSearch from '../components/LocationSearch';
 import Weather from '../components/Weather';
 
 const WEATHER_PROXY = "https://cors-anywhere.herokuapp.com/";
 const WEATHER_URL = "https://api.darksky.net/forecast/";
-
-const GEO_URL = "https://maps.googleapis.com/maps/api/geocode/json?key=";
 
 class WeatherContainer extends React.Component {
 
     constructor(props){
         super(props);
         this.state = {
+            weather: [],
             isLoaded: false,
-            error: null,
-            location: null,
-            weather: []
+            error: null
         }
     }
 
-    getCoordinates = (address) => {
-
-        var url = `${GEO_URL}AIzaSyBTpTu_YJixxVIaKRNZxIxW4IWSVny7p20&address=${address}`;
-
-        const opts = {
-            method: 'GET',
-        };
-
-        fetch(url, opts)
-          .then(res => res.json())
-          .then(
-            (result) => {
-                
-                if(result.status === "OK"){
-                    var long = result.results[0].geometry.location.lng;
-                    var lat = result.results[0].geometry.location.lat;
-                    var location = result.results[0].formatted_address;
-                    this.setState({
-                        location: location,
-                        error: null
-                    });
-                    this.getWeather(lat, long)
-                }else{
-                    this.setState({
-                        isLoaded: true,
-                        location: "Oops!",
-                        error: {"message":"Location not found"},
-                      });
-                }
-            },
-            (error) => {
-              this.setState({
-                isLoaded: true,
-                error
-              });
-            }
-        );
-
-    }
-
-    getWeather = async (lat, long) =>{
-
-        this.setState({
-            isLoaded: false
-        });
-
-        if(typeof long === "undefined" || typeof long === "undefined"){
-            lat = "50.098";
-            long = "-122.988";
-        }
-
-        var url = `${WEATHER_PROXY}${WEATHER_URL}${process.env.REACT_APP_SECRET_KEY}/${lat},${long}`;
+    getWeather = () =>{
+        var url = `${WEATHER_PROXY}${WEATHER_URL}${process.env.REACT_APP_SECRET_KEY}/${this.props.lat},${this.props.long}`;
+        var error = null;
+        var weather = [];
+        var isLoaded = false;
 
         const opts = {
             method: 'GET',
@@ -84,16 +33,19 @@ class WeatherContainer extends React.Component {
           .then(res => res.json())
           .then(
             (result) => {
-              this.setState({
-                isLoaded: true,
-                weather: this.parseData(result.daily.data),
-              });
+                isLoaded = true;
+                weather = this.parseData(result.daily.data);
+                this.setState({
+                    weather: weather,
+                    isLoaded: isLoaded
+                });
             },
             (error) => {
-              this.setState({
-                isLoaded: true,
-                error
-              });
+                isLoaded = true;
+                this.setState({
+                    error: error,
+                    isLoaded: isLoaded
+                });
             }
         );
 
@@ -135,51 +87,30 @@ class WeatherContainer extends React.Component {
         return formattedDate;
     }
 
-    handleLocationChange = e => {
-        e.preventDefault();
-
-        this.getCoordinates(e.target.elements.location.value);
-    }
-
-    getBrowserCoordinates(position){
-        return {
-            "long":position.coords.longitude,
-            "lat":position.coords.latitude,
-        }
-    }
-
     componentDidMount(){
-
-        var coords = [];
-
-        if (navigator.geolocation) {
-            coords = navigator.geolocation.getCurrentPosition(this.getBrowserCoordinates);
-        }
-
-        console.log(coords);
-
         this.getWeather();
+    }
+
+    componentDidUpdate(nextProps){
+        if(nextProps !== this.props){
+            this.setState({isLoaded: false});
+            this.getWeather();
+        }
     }
 
     render(){
 
-        const { error, isLoaded, location } = this.state;
+        const {error, isLoaded} = this.state;
 
-        var display = <Weather weather={this.state.weather} />;
         if(error){
-            display = <p className="text-light mt-5">Error: {error.message}</p>;
-        } else if (!isLoaded) {
-            display = <p className="text-light mt-5">Loading...</p>;
+            return(<div className="text-light mt-5">Error: {error.message}</div>);
+        }else if(!isLoaded){
+            return (<div className="text-light mt-5">Loading...</div>);
         }
-        
+
         return (
-            <div className="container text-center">
-                <h2 className="text-light">{location}</h2>
-                <LocationSearch onLocationChange={this.handleLocationChange} />
-                {display}
-            </div>
-        )
-        
+            <Weather weather={this.state.weather} />
+        );
     }
 }
 
