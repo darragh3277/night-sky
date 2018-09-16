@@ -9,10 +9,9 @@ class App extends React.Component {
     this.state = {
         isLoaded: false,
         error: null,
-        location: "Whistler",
-        long: "-122.988",
-        lat: "50.098",
-        weather: [],
+        location: null,
+        long: null,
+        lat: null,
     }
   }
 
@@ -32,6 +31,22 @@ class App extends React.Component {
     
   }
 
+  handleNavigatorLoad = (error, isLoaded, long, lat, location) => {
+
+    if(!error){
+      isLoaded = false;
+    }
+        
+    this.setState({
+        error: error,
+        isLoaded: isLoaded,
+        location: location,
+        long: long,
+        lat: lat,
+    });
+
+  }
+
   render() {
 
     const {error, location} = this.state;
@@ -39,6 +54,7 @@ class App extends React.Component {
     var display = <WeatherContainer 
       long={this.state.long} 
       lat={this.state.lat} 
+      location={location}
       />
 
     if(error){
@@ -51,7 +67,10 @@ class App extends React.Component {
           <div className="h-25"></div>
           <div className="container text-center">
             <h2 className="text-light">{location}</h2>
-            <LocationSearchContainer onUpdateLocation={this.handleLocationChange} />
+            <LocationSearchContainer 
+              onUpdateLocation={this.handleLocationChange} 
+              onNavigatorLoad={this.handleNavigatorLoad}
+              />
             {display}
           </div>
         </div>

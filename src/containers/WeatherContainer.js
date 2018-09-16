@@ -16,9 +16,12 @@ class WeatherContainer extends React.Component {
     }
 
     getWeather = () =>{
-        var url = `${WEATHER_PROXY}${WEATHER_URL}${process.env.REACT_APP_SECRET_KEY}/${this.props.lat},${this.props.long}`;
-        var error = null;
-        var weather = [];
+
+        if(!this.props.lat || !this.props.long){
+            return;
+        }
+
+        var url = `${WEATHER_PROXY}${WEATHER_URL}${process.env.REACT_APP_DARKSKY_KEY}/${this.props.lat},${this.props.long}`;
         var isLoaded = false;
 
         const opts = {
@@ -34,7 +37,7 @@ class WeatherContainer extends React.Component {
           .then(
             (result) => {
                 isLoaded = true;
-                weather = this.parseData(result.daily.data);
+                var weather = this.parseData(result.daily.data);
                 this.setState({
                     weather: weather,
                     isLoaded: isLoaded
@@ -92,7 +95,8 @@ class WeatherContainer extends React.Component {
     }
 
     componentDidUpdate(nextProps){
-        if(nextProps !== this.props){
+        if(nextProps.long !== this.props.long
+        && nextProps.lat !== this.props.lat){
             this.setState({isLoaded: false});
             this.getWeather();
         }
@@ -104,6 +108,8 @@ class WeatherContainer extends React.Component {
 
         if(error){
             return(<div className="text-light mt-5">Error: {error.message}</div>);
+        }else if(!this.props.location){
+            return (<div className="text-light mt-5"></div>);
         }else if(!isLoaded){
             return (<div className="text-light mt-5">Loading...</div>);
         }
