@@ -1,5 +1,6 @@
 import React from 'react';
 import Weather from '../components/Weather';
+import {mapWeatherData} from '../utilities.js'
 
 const WEATHER_PROXY = "https://cors-anywhere.herokuapp.com/";
 const WEATHER_URL = "https://api.darksky.net/forecast/";
@@ -37,7 +38,7 @@ class WeatherContainer extends React.Component {
           .then(
             (result) => {
                 isLoaded = true;
-                var weather = this.parseData(result.daily.data);
+                var weather = mapWeatherData(result.daily.data);
                 this.setState({
                     weather: weather,
                     isLoaded: isLoaded
@@ -52,42 +53,6 @@ class WeatherContainer extends React.Component {
             }
         );
 
-    }
-
-    parseData(data){
-        var parsedData = [];
-
-        parsedData = data.map(obj => {
-            return {
-                "date":this.getFormattedDate(obj.time, obj.timezone),
-                "icon":this.getIcon(obj.cloudCover),
-            }
-        })
-
-        return parsedData;
-    }
-
-    getIcon(clouds){      
-        var icon = "../images/clear-night.png";
-        if (clouds > 0.30 && clouds < 0.60){
-            icon = "../images/partial-cloud.png";
-        }else if (clouds >= 0.60){
-            icon = "../images/overcast.png";
-        }
-
-        return icon;
-    }
-
-    getFormattedDate(unixTime, timezone){
-        var dateObj = new Date(unixTime*1000);
-        var formattedDate = new Intl.DateTimeFormat('en-GB', {
-            weekday: 'short',
-            month: 'short', 
-            day: 'numeric',
-            timezone: timezone
-          }).format(dateObj);
-
-        return formattedDate;
     }
 
     componentDidMount(){
