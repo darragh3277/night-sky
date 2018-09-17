@@ -3,64 +3,26 @@ import WeatherContainer from './containers/WeatherContainer';
 import LocationSearchContainer from './containers/LocationSearchContainer';
 
 class App extends React.Component {
-
-  constructor(props){
-    super(props);
-    this.state = {
-        isLoaded: false,
-        error: null,
-        location: null,
-        long: null,
-        lat: null,
-    }
+  state = {
+    isLoaded: false,
+    error: null,
+    location: null,
+    long: null,
+    lat: null,
   }
 
-  handleLocationChange = (error, isLoaded, long, lat, location) => {
-
-    if(!error){
-      isLoaded = false;
-    }
-        
+  handleLocationChange = (error, isLoaded, long, lat, location) => {     
     this.setState({
-        error: error,
-        isLoaded: isLoaded,
-        location: location,
-        long: long,
-        lat: lat,
+      error,
+      isLoaded: !error ? false : isLoaded,
+      location,
+      long,
+      lat,
     });
-    
-  }
-
-  handleNavigatorLoad = (error, isLoaded, long, lat, location) => {
-
-    if(!error){
-      isLoaded = false;
-    }
-        
-    this.setState({
-        error: error,
-        isLoaded: isLoaded,
-        location: location,
-        long: long,
-        lat: lat,
-    });
-
   }
 
   render() {
-
-    const {error, location} = this.state;
-
-    var display = <WeatherContainer 
-      long={this.state.long} 
-      lat={this.state.lat} 
-      location={location}
-      />
-
-    if(error){
-      display = <div className="text-light mt-5">Error: {error.message}</div>
-    }
-
+    const {error, location, long, lat} = this.state;
     return (
       <div className="main-page d-flex flex-column flex-fill">
         <div className="bg flex-fill">
@@ -71,12 +33,19 @@ class App extends React.Component {
               onUpdateLocation={this.handleLocationChange} 
               onNavigatorLoad={this.handleNavigatorLoad}
               />
-            {display}
+              {error ? (
+                <div className="text-light mt-5">Error: {error.message}</div>
+              ) : (
+                <WeatherContainer 
+                  long={long} 
+                  lat={lat} 
+                  location={location}
+                />
+              )}
           </div>
         </div>
       </div>
     )
-
   }
 }
 

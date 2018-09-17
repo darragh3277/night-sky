@@ -56,12 +56,12 @@ class LocationSearchContainer extends React.Component{
                     error = {"message":"Location not found"};
                 }
 
-                this.props.onNavigatorLoad(error, isLoaded, long, lat, location);
+                this.props.onUpdateLocation(error, isLoaded, long, lat, location);
             },
             (error) => {
                 var isLoaded = true;
                 location = "Not Found";
-                this.props.onNavigatorLoad(error, isLoaded, long, lat, location);
+                this.props.onUpdateLocation(error, isLoaded, long, lat, location);
             }
         );
 
